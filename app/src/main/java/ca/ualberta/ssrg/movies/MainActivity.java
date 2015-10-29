@@ -9,6 +9,8 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
 import ca.ualberta.ssrg.androidelasticsearch.R;
@@ -20,6 +22,8 @@ public class MainActivity extends Activity {
 	private ArrayAdapter<Movie> moviesViewAdapter;
 	private ESMovieManager movieManager;
 	private MoviesController moviesController;
+	private Button button1;
+	private EditText searchtext;
 
 	private Context mContext = this;
 
@@ -29,6 +33,27 @@ public class MainActivity extends Activity {
 		setContentView(R.layout.activity_main);
 
 		movieList = (ListView) findViewById(R.id.movieList);
+		button1 = (Button) findViewById(R.id.button1);
+		searchtext = (EditText) findViewById(R.id.editText1);
+
+		button1.setOnClickListener(new View.OnClickListener() {
+
+			public void onClick(View v) {
+				//setResult(RESULT_OK);
+
+				search(v);
+				/*
+				String text = searchtext.getText().toString();
+				//Movies searchresult = movieManager.searchMovies(text,null);
+				//Toast.makeText(getApplicationContext(), "ok!", Toast.LENGTH_SHORT).show();
+				SearchThread thread = new SearchThread(text);
+				thread.start();
+				thread.run();
+				//adapter.notifyDataSetChanged();*/
+
+			}
+		});
+
 	}
 
 	@Override
@@ -71,7 +96,9 @@ public class MainActivity extends Activity {
 	protected void onResume() {
 		super.onResume();
 		
-		
+		//you cannot access the network from the gui thread
+		//so let us create another thread to do that work.
+		//if we try to use the gui thread -- the gui will stop and wait
 		SearchThread thread = new SearchThread("*");
 
 		thread.start();
@@ -99,6 +126,11 @@ public class MainActivity extends Activity {
 	 */
 	public void search(View view) {
 		movies.clear();
+
+		String text = searchtext.getText().toString();
+		SearchThread thread = new SearchThread(text);
+		thread.start();
+
 
 		// TODO: Extract search query from text view
 		
